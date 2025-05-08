@@ -1,7 +1,7 @@
 ### KAFKA
 
 ## What is Kafka?
-Think of Kafka as a distributed event store and realtime streaming platform, invented by LinkedIn.
+Think of Kafka as a distributed event store and realtime streaming platform, developed by LinkedIn.
 
 ## How it works?
 Producer ( source of a data ) - Send data to Kafka broker

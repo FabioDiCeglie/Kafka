@@ -5,7 +5,9 @@ Think of Kafka as a distributed event store and realtime streaming platform, dev
 
 ## How it works?
 Producer ( source of a data ) - Send data to Kafka broker
+
 Broker - Store and manage everything
+
 Consumer - Come in and process this data based on their unique needs
 ![Kafka Architecture](./kafka-images/1.png)
 

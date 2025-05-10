@@ -5,7 +5,9 @@ Think of Kafka as a distributed event store and realtime streaming platform, dev
 
 ## How it works?
 Producer ( source of a data ) - Send data to Kafka broker
+
 Broker - Store and manage everything
+
 Consumer - Come in and process this data based on their unique needs
 ![Kafka Architecture](./kafka-images/1.png)
 
@@ -50,5 +52,5 @@ Consumers in a group divide up partitions among themselves through coordination 
 ## Kafka Cluster
 Kafka cluster itself is made up by multiple Brokers these are servers that store and manage our data to keep our data safe each partition is replicated across several brokers using a leader follower model, if one brokers fails another steps in as a new leader without losing any data.
 ![Kafka cluster](./kafka-images/11.png)
-In earlier versions kafkaesque rely on ZooKeeper to manager broker metadata and leader election however newer version are using KRaft a building consensus mechanism that simplify operations by eliminating ZooKeeper as an external dependency while improving scalability.
+In earlier versions Kafka rely on ZooKeeper to manager broker metadata and leader election however newer version are using KRaft a building consensus mechanism that simplify operations by eliminating ZooKeeper as an external dependency while improving scalability.
 ![Kafka cluster KRaft](./kafka-images/12.png)

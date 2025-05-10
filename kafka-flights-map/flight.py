@@ -4,10 +4,13 @@ from datetime import datetime
 import uuid
 import time
 import threading
+import os
+
+KAFKA_BROKER_URL = os.getenv('KAFKA_BROKER_URL', 'localhost:9092')
 
 #KAFKA PRODUCER
 try:
-    client = KafkaClient(hosts="localhost:9092")
+    client = KafkaClient(hosts=KAFKA_BROKER_URL)
     topic = client.topics['flightdata']
     producer = topic.get_sync_producer()
 except Exception as e:

@@ -1,8 +1,11 @@
 from flask import Flask, render_template, Response
 from pykafka import KafkaClient
+import os
 
 def get_kafka_client():
-    return KafkaClient(hosts="127.0.0.1:9092")
+    KAFKA_BROKER_URL = os.getenv('KAFKA_BROKER_URL', '127.0.0.1:9092')
+    # return KafkaClient(hosts="127.0.0.1:9092") # Original line
+    return KafkaClient(hosts=KAFKA_BROKER_URL)
 
 app = Flask(__name__)
 

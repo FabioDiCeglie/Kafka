@@ -16,6 +16,7 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -31,7 +32,8 @@ services:
     depends_on:
       - kafka
     environment:
-      KAFKA_BROKER_URL: ${KAFKA_SERVICE_NAME_INTERNAL}
+      KAFKA_BROKER_URL: ${KAFKA_BROKER_URL}
+      FLASK_DEBUG: ${FLASK_DEBUG}
     command: >
       sh -c "
         echo 'Waiting for Kafka to be ready...' &&
@@ -47,8 +49,8 @@ services:
     ports:
       - "5001:5001"
     environment:
-      KAFKA_BROKER_URL: ${KAFKA_SERVICE_NAME_INTERNAL}
-      FLASK_DEBUG: ${FLASK_APP_DEBUG_MODE}
+      KAFKA_BROKER_URL: ${KAFKA_BROKER_URL}
+      FLASK_DEBUG: ${FLASK_DEBUG}
     command: >
       sh -c "
         echo 'Waiting for Kafka to be ready...' &&

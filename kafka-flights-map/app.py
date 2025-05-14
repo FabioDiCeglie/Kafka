@@ -4,7 +4,6 @@ import os
 
 def get_kafka_client():
     KAFKA_BROKER_URL = os.getenv('KAFKA_BROKER_URL', '127.0.0.1:9092')
-    # return KafkaClient(hosts="127.0.0.1:9092") # Original line
     return KafkaClient(hosts=KAFKA_BROKER_URL)
 
 app = Flask(__name__)
@@ -24,4 +23,4 @@ def get_messages(topicname):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(host='0.0.0.0', debug=os.getenv('FLASK_DEBUG', 'False'), port=5001)

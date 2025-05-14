@@ -10,6 +10,7 @@ KAFKA_BROKER_URL = os.getenv('KAFKA_BROKER_URL', 'localhost:9092')
 
 #KAFKA PRODUCER
 try:
+    print(f"Connecting to Kafka at {KAFKA_BROKER_URL}")
     client = KafkaClient(hosts=KAFKA_BROKER_URL)
     topic = client.topics['flightdata']
     producer = topic.get_sync_producer()
@@ -70,24 +71,26 @@ def simulate_flight_thread(geojson_file_path, airline_name, flight_number):
             i += 1
 
 if __name__ == "__main__":
+    print("flight.py script started")
     flights = [
         ('./data/flight1.json', 'Ryanair', 'RYR50HA'),
         ('./data/flight2.json', 'Lufthansa', 'DLH1061'),
     ]
+    print(f"Flights to simulate: {flights}")
+    # threads = []
+    # for flight_config in flights:
+    #     print(f"Starting flight simulation: {flight_config}")
+    #     geojson_path, airline, flight_num = flight_config
+    #     thread = threading.Thread(target=simulate_flight_thread, args=(geojson_path, airline, flight_num))
+    #     threads.append(thread)
+    #     thread.start()
 
-    threads = []
-    for flight_config in flights:
-        geojson_path, airline, flight_num = flight_config
-        thread = threading.Thread(target=simulate_flight_thread, args=(geojson_path, airline, flight_num))
-        threads.append(thread)
-        thread.start()
+    # print("All flight simulation threads started.") # This prints when threads are launched
 
-    print("All flight simulation threads started.") # This prints when threads are launched
-
-    # Keep the main thread alive while other threads run, and wait for them to complete
-    # This is useful if you want the script to run until all threads are done (e.g. if they had a condition to stop)
-    # For indefinitely running flights, this will also run indefinitely.
-    for thread in threads:
-        thread.join()
+    # # Keep the main thread alive while other threads run, and wait for them to complete
+    # # This is useful if you want the script to run until all threads are done (e.g. if they had a condition to stop)
+    # # For indefinitely running flights, this will also run indefinitely.
+    # for thread in threads:
+    #     thread.join()
     
-    print("All flight simulations have completed.") # This will only be reached if threads can complete
+    # print("All flight simulations have completed.") # This will only be reached if threads can complete

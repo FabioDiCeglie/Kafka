@@ -4,7 +4,12 @@ import os
 
 def get_kafka_client():
     KAFKA_BROKER_URL = os.getenv('KAFKA_BROKER_URL', '127.0.0.1:9092')
-    return KafkaClient(hosts=KAFKA_BROKER_URL)
+    try:
+        print(f"Connecting to Kafka at {KAFKA_BROKER_URL}")
+        return KafkaClient(hosts=KAFKA_BROKER_URL)
+    except Exception as e:
+        print(f"Failed to connect to Kafka: {e}")
+        return None
 
 app = Flask(__name__)
 

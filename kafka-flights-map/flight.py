@@ -3,10 +3,9 @@ import json
 from datetime import datetime
 import uuid
 import time
-import threading
 import os
 
-KAFKA_BROKER_URL = os.getenv('KAFKA_BROKER_URL', 'localhost:9092')
+KAFKA_BROKER_URL = os.getenv('KAFKA_BROKER_URL', '127.0.0.1:9092')
 
 #KAFKA PRODUCER
 try:
@@ -22,75 +21,51 @@ except Exception as e:
 def generate_uuid():
     return uuid.uuid4()
 
-# Handle one flight in a thread
-def simulate_flight_thread(geojson_file_path, airline_name, flight_number):
+#CONSTRUCT MESSAGE AND SEND IT TO KAFKA
+data = {}
+
+def generateCurrentLocation(coordinates, airline, flight, current_index):
+    data['airline'] = airline
+    data['flight'] = flight
+    data['key'] = data['airline'] + '_' + str(generate_uuid())
+    data['timestamp'] = str(datetime.utcnow())
+    data['latitude'] = coordinates[current_index][1]
+    data['longitude'] = coordinates[current_index][0]
+    message = json.dumps(data)
+    print("message: ", message)
     try:
-        with open(geojson_file_path) as f:
-            json_array = json.load(f)
-        coordinates = json_array['features'][0]['geometry']['coordinates']
-    except FileNotFoundError:
-        print(f"Error: GeoJSON file not found at {geojson_file_path} for flight {airline_name} {flight_number}")
-        return
-    except (KeyError, IndexError) as e:
-        print(f"Error: Could not read coordinates from {geojson_file_path} for {airline_name} {flight_number}. Invalid format? {e}")
-        return
-    except json.JSONDecodeError as e:
-        print(f"Error: Could not decode JSON from {geojson_file_path} for {airline_name} {flight_number}. {e}")
-        return
+        producer.produce(message.encode('ascii'))
+    except Exception as e:
+        print(f"Error Type: {type(e)}")
+        print(f"Error Repr: {repr(e)}")
+        print(f"Error: {e}")
+    time.sleep(0.5)
 
-    print(f"Starting flight simulation: {airline_name} {flight_number} using {geojson_file_path}")
-
-    # Local data dictionary for this flight thread
-    flight_data = {}
-    flight_data['airline'] = airline_name
-    flight_data['flight'] = flight_number
-    
-    i = 0
-    while True: # Changed from while i < len(coordinates) to ensure continuous loop
-        flight_data['key'] = flight_data['airline'] + '_' + str(generate_uuid())
-        flight_data['timestamp'] = str(datetime.utcnow())
-        flight_data['latitude'] = coordinates[i][1]
-        flight_data['longitude'] = coordinates[i][0]
-        message = json.dumps(flight_data)
-        
-        try:
-            producer.produce(message.encode('ascii'))
-            # print(f"Sent: {message}") # Uncomment for debugging
-        except Exception as e:
-            print(f"Error producing message for {airline_name} {flight_number}: {e}")
-            # Consider adding a small delay or retry mechanism if Kafka is temporarily unavailable
-            time.sleep(5) # Wait before trying to send next message
-            continue # Continue to next iteration of the loop
-
-        time.sleep(1)
-
-        #if flight reaches last coordinate, start from beginning
-        if i == len(coordinates)-1:
-            i = 0
-        else:
-            i += 1
+    # Calculate next index
+    next_index = current_index + 1
+    if next_index == len(coordinates):
+        next_index = 0  # Reset to start from the beginning
+    return next_index
 
 if __name__ == "__main__":
-    print("flight.py script started")
-    flights = [
-        ('./data/flight1.json', 'Ryanair', 'RYR50HA'),
-        ('./data/flight2.json', 'Lufthansa', 'DLH1061'),
-    ]
-    print(f"Flights to simulate: {flights}")
-    # threads = []
-    # for flight_config in flights:
-    #     print(f"Starting flight simulation: {flight_config}")
-    #     geojson_path, airline, flight_num = flight_config
-    #     thread = threading.Thread(target=simulate_flight_thread, args=(geojson_path, airline, flight_num))
-    #     threads.append(thread)
-    #     thread.start()
+    files_data = []
+    for flight_info in [{'file': 'flight1.json', 'airline': 'Ryanair', 'flight': 'RYR50HA'}, {'file': 'flight2.json', 'airline': 'Lufthansa', 'flight': 'LH500'}]:
+        input_file = open('./data/' + flight_info['file'])
+        json_array = json.load(input_file)
+        coordinates = json_array['features'][0]['geometry']['coordinates']
+        files_data.append({
+            'coordinates': coordinates,
+            'airline': flight_info['airline'],
+            'flight': flight_info['flight'],
+            'current_index': 0
+        })
 
-    # print("All flight simulation threads started.") # This prints when threads are launched
-
-    # # Keep the main thread alive while other threads run, and wait for them to complete
-    # # This is useful if you want the script to run until all threads are done (e.g. if they had a condition to stop)
-    # # For indefinitely running flights, this will also run indefinitely.
-    # for thread in threads:
-    #     thread.join()
-    
-    # print("All flight simulations have completed.") # This will only be reached if threads can complete
+    while True:
+        for flight_data in files_data:
+            next_idx = generateCurrentLocation(
+                flight_data['coordinates'],
+                flight_data['airline'],
+                flight_data['flight'],
+                flight_data['current_index']
+            )
+            flight_data['current_index'] = next_idx

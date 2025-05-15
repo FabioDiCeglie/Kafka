@@ -24,7 +24,6 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_INTERNAL_ADVERTISED_HOSTNAME}:${KAFKA_INTERNAL_ADVERTISED_PORT},PLAINTEXT_HOST://${KAFKA_EXTERNAL_ADVERTISED_HOSTNAME}:${KAFKA_EXTERNAL_ADVERTISED_PORT}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      # KAFKA_CREATE_TOPICS: "flightdata:1:1"
 
   flight-producer:
     build: .
@@ -37,7 +36,7 @@ services:
     command: >
       sh -c "
         echo 'Waiting for Kafka to be ready...' &&
-        sleep 15 &&
+        sleep 5 &&
         python flight.py
       "
 
@@ -54,7 +53,7 @@ services:
     command: >
       sh -c "
         echo 'Waiting for Kafka to be ready...' &&
-        sleep 15 &&
+        sleep 5 &&
         python app.py
       "
 

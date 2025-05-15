@@ -8,7 +8,7 @@ mapMarkers1 = [];
 mapMarkers5 = [];
 
 var flightIcon = L.icon({
-  iconUrl: 'airplane.png',
+  iconUrl: 'static/airplane.png',
   iconSize:     [30, 30], // size of the icon
   popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
@@ -16,12 +16,9 @@ var flightIcon = L.icon({
 // Establishes a persistent connection to the server endpoint '/topic/flightdata'.
 // This allows the server to stream data (Server-Sent Events or SSE) to the client
 // in real-time, which is used here to receive live flight data updates.
-var source = new EventSource('/topic/flightdata'); 
+var source = new EventSource('/topic/flightdata');
 source.addEventListener('message', function(e){
-
-  console.log('Message');
   obj = JSON.parse(e.data);
-  console.log(obj);
 
   // Check if the airline is 'Ryanair'
   if(obj.airline == 'Ryanair') {
